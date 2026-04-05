@@ -185,57 +185,50 @@ const initApp = () => {
         
         const target = parseInt(targetVal) || 0;
         const duration = 2000;
-        const startTime = performance.now();
         const suffix = target >= 50 ? '+' : '';
+        
+        // Failsafe population in case animation loops fail
+        counter.textContent = target + suffix;
 
-        function updateCounter() {
-          const elapsed = Math.max(0, performance.now() - startTime);
-          const progress = Math.min(elapsed / duration, 1);
+        let startTimestamp = null;
+        
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
           const easeOut = 1 - Math.pow(1 - progress, 3);
           const current = Math.round(target * easeOut);
 
           counter.textContent = current + suffix;
 
           if (progress < 1) {
-            requestAnimationFrame(updateCounter);
+            window.requestAnimationFrame(step);
           } else {
             counter.textContent = target + suffix;
           }
-        }
+        };
 
-        requestAnimationFrame(updateCounter);
+        // Reset to 0 briefly to start animation
+        counter.textContent = '0';
+        window.requestAnimationFrame(step);
       } catch (err) {
         console.error("Counter animation error", err);
       }
     });
   }
 
-  if ('IntersectionObserver' in window && counters.length > 0) {
-    const counterObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          console.log('Counter intersected, triggering animation');
-          animateCounters();
-          counterObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    counters.forEach(counter => {
-      counterObserver.observe(counter);
-    });
-  }
-
-  // Counter fallback: also trigger on scroll just in case
+  // Robustly trigger counters when user scrolls down the page
   window.addEventListener('scroll', () => {
-    if (!countersAnimated && counters.length > 0) {
-      const firstCounter = counters[0];
-      if (isInViewport(firstCounter)) {
-        console.log('Counter fallback triggered animation');
-        animateCounters();
-      }
+    if (!countersAnimated && window.scrollY > 400 && counters.length > 0) {
+      animateCounters();
     }
   }, { passive: true });
+
+  // Ultimate fallback trigger after 4 seconds regardless of scroll
+  setTimeout(() => {
+    if (!countersAnimated && counters.length > 0) {
+      animateCounters();
+    }
+  }, 4000);
 
   // ===== TESTIMONIALS SLIDER =====
   const testimonialCards = document.querySelectorAll('.testimonial-card');
