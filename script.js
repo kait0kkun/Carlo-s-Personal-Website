@@ -170,65 +170,7 @@ const initApp = () => {
     revealElements.forEach(el => el.classList.add('visible'));
   }, 3000);
 
-  // ===== COUNTER ANIMATION =====
-  const counters = document.querySelectorAll('.counter');
-  let countersAnimated = false;
 
-  function animateCounters() {
-    if (countersAnimated) return;
-    countersAnimated = true;
-
-    counters.forEach(counter => {
-      try {
-        const targetVal = counter.dataset.target;
-        if (!targetVal) return;
-        
-        const target = parseInt(targetVal) || 0;
-        const duration = 2000;
-        const suffix = target >= 50 ? '+' : '';
-        
-        // Failsafe population in case animation loops fail
-        counter.textContent = target + suffix;
-
-        let startTimestamp = null;
-        
-        const step = (timestamp) => {
-          if (!startTimestamp) startTimestamp = timestamp;
-          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-          const easeOut = 1 - Math.pow(1 - progress, 3);
-          const current = Math.round(target * easeOut);
-
-          counter.textContent = current + suffix;
-
-          if (progress < 1) {
-            window.requestAnimationFrame(step);
-          } else {
-            counter.textContent = target + suffix;
-          }
-        };
-
-        // Reset to 0 briefly to start animation
-        counter.textContent = '0';
-        window.requestAnimationFrame(step);
-      } catch (err) {
-        console.error("Counter animation error", err);
-      }
-    });
-  }
-
-  // Robustly trigger counters when user scrolls down the page
-  window.addEventListener('scroll', () => {
-    if (!countersAnimated && window.scrollY > 400 && counters.length > 0) {
-      animateCounters();
-    }
-  }, { passive: true });
-
-  // Ultimate fallback trigger after 4 seconds regardless of scroll
-  setTimeout(() => {
-    if (!countersAnimated && counters.length > 0) {
-      animateCounters();
-    }
-  }, 4000);
 
   // ===== TESTIMONIALS SLIDER =====
   const testimonialCards = document.querySelectorAll('.testimonial-card');
