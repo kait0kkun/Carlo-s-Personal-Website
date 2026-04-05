@@ -179,27 +179,34 @@ const initApp = () => {
     countersAnimated = true;
 
     counters.forEach(counter => {
-      const target = parseInt(counter.dataset.target);
-      const duration = 2000;
-      const startTime = performance.now();
-      const suffix = target >= 50 ? '+' : '';
+      try {
+        const targetVal = counter.dataset.target;
+        if (!targetVal) return;
+        
+        const target = parseInt(targetVal) || 0;
+        const duration = 2000;
+        const startTime = performance.now();
+        const suffix = target >= 50 ? '+' : '';
 
-      function updateCounter(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const current = Math.round(target * easeOut);
+        function updateCounter() {
+          const elapsed = Math.max(0, performance.now() - startTime);
+          const progress = Math.min(elapsed / duration, 1);
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(target * easeOut);
 
-        counter.textContent = current + suffix;
+          counter.textContent = current + suffix;
 
-        if (progress < 1) {
-          requestAnimationFrame(updateCounter);
-        } else {
-          counter.textContent = target + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          } else {
+            counter.textContent = target + suffix;
+          }
         }
-      }
 
-      requestAnimationFrame(updateCounter);
+        requestAnimationFrame(updateCounter);
+      } catch (err) {
+        console.error("Counter animation error", err);
+      }
     });
   }
 
