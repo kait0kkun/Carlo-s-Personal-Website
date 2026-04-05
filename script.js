@@ -313,15 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function simulateSend(data) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log('Form submitted:', data);
-
-        const subject = encodeURIComponent(data.subject);
-        const body = encodeURIComponent(
-          `From: ${data.firstName} ${data.lastName}\nEmail: ${data.email}\n\n${data.message}`
-        );
-        const mailtoLink = `mailto:carlo.bunayos@lamparabooks.com.ph?subject=${subject}&body=${body}`;
-
-        window.location.href = mailtoLink;
+        console.log('Form submitted (email integration removed):', data);
         resolve();
       }, 1000);
     });
