@@ -7,7 +7,7 @@
 // Add js-loaded class to enable scroll reveal animations (progressive enhancement)
 document.documentElement.classList.add('js-loaded');
 
-document.addEventListener('DOMContentLoaded', () => {
+const initApp = () => {
   // ===== NAVBAR SCROLL EFFECT =====
   const navbar = document.getElementById('navbar');
   const backToTop = document.getElementById('backToTop');
@@ -207,21 +207,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const counterObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          console.log('Counter intersected, triggering animation');
           animateCounters();
           counterObserver.unobserve(entry.target);
         }
       });
     }, { threshold: 0.1 });
 
-    const statsBanner = counters[0].closest('.stats-banner');
-    counterObserver.observe(statsBanner || counters[0]);
+    counters.forEach(counter => {
+      counterObserver.observe(counter);
+    });
   }
 
-  // Counter fallback: also trigger on scroll
+  // Counter fallback: also trigger on scroll just in case
   window.addEventListener('scroll', () => {
     if (!countersAnimated && counters.length > 0) {
-      const banner = counters[0].closest('.stats-banner') || counters[0];
-      if (isInViewport(banner)) {
+      const firstCounter = counters[0];
+      if (isInViewport(firstCounter)) {
+        console.log('Counter fallback triggered animation');
         animateCounters();
       }
     }
@@ -351,4 +354,10 @@ document.addEventListener('DOMContentLoaded', () => {
       closeMobileMenu();
     }
   });
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
