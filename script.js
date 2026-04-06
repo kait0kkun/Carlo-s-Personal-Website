@@ -172,45 +172,84 @@ const initApp = () => {
 
 
 
-  // ===== TESTIMONIALS SLIDER =====
-  const testimonialCards = document.querySelectorAll('.testimonial-card');
-  const testimonialDots = document.querySelectorAll('.testimonial-dot');
-  let currentTestimonial = 0;
-  let testimonialInterval;
+  // ===== TESTIMONIALS STACKING ANIMATION (GSAP) =====
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
 
-  function showTestimonial(index) {
-    testimonialCards.forEach(card => card.classList.remove('active'));
-    testimonialDots.forEach(dot => dot.classList.remove('active'));
+    const section = document.querySelector('.testimonials');
+    const cards = gsap.utils.toArray('.testimonial-card');
+    const progressFill = document.getElementById('progressFill');
+    const progressNumber = document.getElementById('progressNumber');
+    
+    if (section && cards.length > 0) {
+      // 1. Initial Setup: Place all cards on top of each other
+      cards.forEach((card, i) => {
+        gsap.set(card, { 
+          zIndex: i + 1,
+          opacity: i === 0 ? 1 : 0,
+          yPercent: i === 0 ? 0 : 100, // Non-first cards are below
+          scale: 1,
+          rotate: 0,
+          display: 'block'
+        });
+      });
+      
+      // 2. Create the Timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.testimonials',
+          start: 'top top',
+          end: `+=${cards.length * 100}%`, // Scroll distance relative to card count
+          pin: true,
+          scrub: true,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (progressFill) progressFill.style.transform = `scaleX(${self.progress})`;
+            
+            const total = cards.length;
+            const current = Math.min(Math.floor(self.progress * total), total - 1);
+            if (progressNumber) progressNumber.textContent = `0${current + 1} / 0${total}`;
+          }
+        }
+      });
 
-    if (testimonialCards[index]) testimonialCards[index].classList.add('active');
-    if (testimonialDots[index]) testimonialDots[index].classList.add('active');
-    currentTestimonial = index;
-  }
+      // 3. Stacking steps: i slides up while i-1 shrinks
+      cards.forEach((card, i) => {
+        if (i > 0) {
+          // Slide in the next card
+          tl.to(card, {
+            yPercent: 0,
+            opacity: 1,
+            ease: 'none',
+            duration: 1
+          }, i - 1); // Start at index-1 point in timeline
 
-  function nextTestimonial() {
-    const next = (currentTestimonial + 1) % testimonialCards.length;
-    showTestimonial(next);
-  }
-
-  function startTestimonialRotation() {
-    testimonialInterval = setInterval(nextTestimonial, 5000);
-  }
-
-  function stopTestimonialRotation() {
-    clearInterval(testimonialInterval);
-  }
-
-  testimonialDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const index = parseInt(dot.dataset.index);
-      stopTestimonialRotation();
-      showTestimonial(index);
-      startTestimonialRotation();
+          // Shrink previous card
+          tl.to(cards[i-1], {
+            scale: 0.9,
+            opacity: 0.2,
+            yPercent: -10,
+            rotate: -1,
+            ease: 'none',
+            duration: 1
+          }, i - 1); // Animate simultaneously
+        }
+      });
+      
+      // Force refresh to calculate spacer
+      ScrollTrigger.refresh();
+    }
+  } else {
+    // Robust fallback: vertical list
+    const cards = document.querySelectorAll('.testimonial-card');
+    cards.forEach(card => {
+      card.style.position = 'relative';
+      card.style.opacity = '1';
+      card.style.transform = 'none';
+      card.style.marginBottom = '24px';
     });
-  });
-
-  if (testimonialCards.length > 0) {
-    startTestimonialRotation();
+    const stack = document.querySelector('.testimonials-stack');
+    if (stack) stack.style.height = 'auto';
   }
 
   // ===== CONTACT FORM =====

@@ -23,7 +23,11 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=5">
+  
+  <!-- GSAP & ScrollTrigger -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 
 <body>
@@ -308,53 +312,64 @@
 
   <!-- Testimonials Section -->
   <section class="section testimonials" id="testimonials">
-    <div class="section-container">
-      <div class="section-header reveal">
-        <p class="section-eyebrow">Testimonials</p>
-        <h2 class="section-title">What People Say</h2>
-        <p class="section-subtitle">Kind words from colleagues, partners, and clients I've had the privilege to work
-          with.</p>
-        <div class="section-divider"></div>
+    <div class="section-container testimonials-container">
+      <div class="testimonials-info">
+        <div class="section-header">
+          <p class="section-eyebrow">Testimonials</p>
+          <h2 class="section-title">What People Say</h2>
+          <p class="section-subtitle">Kind words from colleagues, partners, and clients I've had the privilege to work with.</p>
+          <div class="section-divider"></div>
+        </div>
+        
+        <div class="testimonials-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="progress-number" id="progressNumber">01 / 03</span>
+        </div>
       </div>
 
-      <div class="testimonials-slider reveal-scale">
-        <div class="testimonial-card active" id="testimonial-0">
-          <p class="testimonial-text">"Carlo's dedication to making quality educational materials accessible is
-            unmatched. His strategic vision and deep understanding of the Philippine education landscape have been
-            instrumental in expanding our reach to underserved communities."</p>
+      <div class="testimonials-stack">
+        <div class="testimonial-card">
+          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+          </svg>
+          <p class="testimonial-text">Carlo's dedication to making quality educational materials accessible is unmatched. His strategic vision and deep understanding of the Philippine education landscape have been instrumental in expanding our reach to underserved communities.</p>
           <div class="testimonial-author">
             <div class="testimonial-avatar">MR</div>
-            <span class="testimonial-name">Maria Reyes</span>
-            <span class="testimonial-role">Regional Director, DepEd Region VII</span>
+            <div>
+              <span class="testimonial-name">Maria Reyes</span>
+              <span class="testimonial-role">Regional Director, DepEd Region VII</span>
+            </div>
           </div>
         </div>
 
-        <div class="testimonial-card" id="testimonial-1">
-          <p class="testimonial-text">"Working with Carlo has been a privilege. He brings both professionalism and
-            genuine passion for literacy advocacy. His team always delivers on their commitments, and the quality of
-            materials speaks for itself."</p>
+        <div class="testimonial-card">
+          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+          </svg>
+          <p class="testimonial-text">Working with Carlo has been a privilege. He brings both professionalism and genuine passion for literacy advocacy. His team always delivers on their commitments, and the quality of materials speaks for itself.</p>
           <div class="testimonial-author">
             <div class="testimonial-avatar">JD</div>
-            <span class="testimonial-name">Jose Dela Cruz</span>
-            <span class="testimonial-role">School Division Superintendent, Cebu City</span>
+            <div>
+              <span class="testimonial-name">Jose Dela Cruz</span>
+              <span class="testimonial-role">School Division Superintendent, Cebu City</span>
+            </div>
           </div>
         </div>
 
-        <div class="testimonial-card" id="testimonial-2">
-          <p class="testimonial-text">"As a publisher, we help different divisions and regional offices of the
-            Department of Education to help them have reliable materials in numeracy and literacy. Carlo's leadership
-            has been key to this mission."</p>
+        <div class="testimonial-card">
+          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+          </svg>
+          <p class="testimonial-text">As a publisher, we help different divisions and regional offices of the Department of Education to help them have reliable materials in numeracy and literacy. Carlo's leadership has been key to this mission.</p>
           <div class="testimonial-author">
             <div class="testimonial-avatar">CB</div>
-            <span class="testimonial-name">Carlo Bunayos</span>
-            <span class="testimonial-role">VP of Sales, Lampara Publishing House — PIA Feature, 2025</span>
+            <div>
+              <span class="testimonial-name">Carlo Bunayos</span>
+              <span class="testimonial-role">VP of Sales, Lampara Publishing House — PIA Feature, 2025</span>
+            </div>
           </div>
-        </div>
-
-        <div class="testimonial-dots">
-          <button class="testimonial-dot active" data-index="0" aria-label="View testimonial 1"></button>
-          <button class="testimonial-dot" data-index="1" aria-label="View testimonial 2"></button>
-          <button class="testimonial-dot" data-index="2" aria-label="View testimonial 3"></button>
         </div>
       </div>
     </div>
@@ -405,9 +420,11 @@
               <div class="contact-method-icon">✉️</div>
               <div>
                 <div class="contact-method-label">Email</div>
-                <div class="contact-method-value"><a href="mailto:lamparabooks@gmail.com">carlbunayos@gmail.com</a>
+                <div class="contact-method-value">
+                  <a href="mailto:lamparabooks@gmail.com">lamparabooks@gmail.com</a>
+                  <span style="margin: 0 6px;">•</span>
+                  <a href="mailto:carlbunayos@gmail.com">carlbunayos@gmail.com</a>
                 </div>
-                <div class="contact-method-value"><a href="mailto:carlbunayos@gmail.com">carlbunayos@gmail.com</a></div>
               </div>
             </div>
             <div class="contact-method">

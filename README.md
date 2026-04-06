@@ -6,7 +6,7 @@ A professional, modern, and responsive personal portfolio website built for Carl
 - **Modern UI/UX**: Premium aesthetic featuring a Navy (#0A1628), Gold (#C9A84C), and White color palette.
 - **Scroll Reveal Animations**: Smooth entry animations as users scroll down the page, enhancing engagement.
 - **Responsive Design**: Fully optimized for mobile phones, tablets, and large desktop screens without compromising layout integrity.
-- **Dynamic Projects & Testimonials**: Organized project showcases and an auto-rotating testimonial carousel.
+- **Dynamic Projects & Testimonials**: Organized project showcases and a modern GSAP ScrollTrigger "stacking cards" testimonial section.
 - **SEO Optimized**: Built with semantic HTML5 and clean architectural hierarchy.
 
 ## Technologies Used
