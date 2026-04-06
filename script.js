@@ -180,32 +180,33 @@ const initApp = () => {
     const cards = gsap.utils.toArray('.testimonial-card');
     const progressFill = document.getElementById('progressFill');
     const progressNumber = document.getElementById('progressNumber');
-    
+
     if (section && cards.length > 0) {
-      // 1. Initial Setup: Place all cards on top of each other
+      // 1. Initial Setup: Set first card active, others off-screen
       cards.forEach((card, i) => {
-        gsap.set(card, { 
+        gsap.set(card, {
+          position: 'absolute',
           zIndex: i + 1,
-          opacity: i === 0 ? 1 : 0,
-          yPercent: i === 0 ? 0 : 100, // Non-first cards are below
+          opacity: 1,
+          y: i === 0 ? 0 : window.innerHeight,
           scale: 1,
-          rotate: 0,
-          display: 'block'
+          display: 'flex'
         });
       });
-      
+
       // 2. Create the Timeline
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: '.testimonials',
           start: 'top top',
-          end: `+=${cards.length * 100}%`, // Scroll distance relative to card count
+          end: `+=${cards.length * 100}%`,
           pin: true,
-          scrub: true,
+          scrub: 1,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (progressFill) progressFill.style.transform = `scaleX(${self.progress})`;
-            
+
             const total = cards.length;
             const current = Math.min(Math.floor(self.progress * total), total - 1);
             if (progressNumber) progressNumber.textContent = `0${current + 1} / 0${total}`;
@@ -213,30 +214,32 @@ const initApp = () => {
         }
       });
 
-      // 3. Stacking steps: i slides up while i-1 shrinks
-      cards.forEach((card, i) => {
-        if (i > 0) {
-          // Slide in the next card
-          tl.to(card, {
-            yPercent: 0,
-            opacity: 1,
-            ease: 'none',
-            duration: 1
-          }, i - 1); // Start at index-1 point in timeline
+      // 3. Construct Animation Sequence
+      cards.forEach((card, index) => {
+        if (index === 0) return;
 
-          // Shrink previous card
-          tl.to(cards[i-1], {
-            scale: 0.9,
-            opacity: 0.2,
-            yPercent: -10,
-            rotate: -1,
-            ease: 'none',
-            duration: 1
-          }, i - 1); // Animate simultaneously
+        // Start the transition for this card at (index - 1) to avoid dead air at the start
+        const label = index - 1;
+
+        // Move/Scale ALL previous cards in the stack
+        for (let i = 0; i < index; i++) {
+          tl.to(cards[i], {
+            scale: 1 - ((index - i) * 0.05),
+            y: -((index - i) * 30),
+            opacity: 1 - ((index - i) * 0.3),
+            duration: 1,
+            ease: 'none'
+          }, label);
         }
+
+        // Bring the CURRENT card up to center
+        tl.to(card, {
+          y: 0,
+          duration: 1,
+          ease: 'none'
+        }, label);
       });
-      
-      // Force refresh to calculate spacer
+
       ScrollTrigger.refresh();
     }
   } else {
