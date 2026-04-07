@@ -255,7 +255,8 @@ const initApp = () => {
     ScrollTrigger.refresh();
   };
 
-  initHighlightsScroll();
+initHighlightsScroll();
+
 
   const contactForm = document.getElementById('contactForm');
   const formStatus = document.getElementById('formStatus');
@@ -339,6 +340,78 @@ const initApp = () => {
       closeMobileMenu();
     }
   });
+
+  // ===== HORIZONTAL PARALLAX GALLERY =====
+  const galleryTrack = document.getElementById('galleryTrack');
+  const galleryProgressBar = document.getElementById('galleryProgressBar');
+  
+  if (galleryTrack && galleryProgressBar) {
+    // Horizontal scroll on mouse wheel in gallery area
+    const scrollGallery = (e) => {
+      const rect = galleryTrack.getBoundingClientRect();
+      const isInGallery = e.clientY >= rect.top && e.clientY <= rect.bottom && 
+                         e.clientX >= rect.left && e.clientX <= rect.right;
+      
+      if (isInGallery) {
+        e.preventDefault();
+        galleryTrack.scrollLeft += e.deltaY > 0 ? 250 : -250;
+        updateGalleryProgress();
+        applyParallax();
+      }
+    };
+    
+    document.addEventListener('wheel', scrollGallery, { passive: false });
+    
+    // Progress bar update
+    const updateGalleryProgress = () => {
+      const maxScroll = galleryTrack.scrollWidth - galleryTrack.clientWidth;
+      const currentScroll = galleryTrack.scrollLeft;
+      const progress = maxScroll > 0 ? (currentScroll / maxScroll) * 100 : 0;
+      galleryProgressBar.style.width = `${progress}%`;
+    };
+    
+    // Scroll parallax effect on items
+    const applyParallax = () => {
+      const items = galleryTrack.querySelectorAll('.gallery-item');
+      const centerOffset = galleryTrack.clientWidth / 2;
+      
+      items.forEach(item => {
+        const itemRect = item.getBoundingClientRect();
+        const itemCenter = itemRect.left + itemRect.width / 2;
+        const distance = (itemCenter - centerOffset) / centerOffset;
+        const clamped = Math.max(-1, Math.min(1, distance));
+        
+        const media = item.querySelector('.gallery-item-media');
+        if (media) {
+          const shift = clamped * -15;
+          media.style.transform = `translateX(${shift}px) scale(${1 + Math.abs(clamped) * 0.1})`;
+        }
+      });
+    };
+    
+    // Initialize - scroll to center on item 6 (index 5)
+    updateGalleryProgress();
+    applyParallax();
+    
+    // Scroll to center item 6 after load
+    setTimeout(() => {
+      const items = galleryTrack.querySelectorAll('.gallery-item');
+      const item6 = items[5];
+      if (item6) {
+        const trackRect = galleryTrack.getBoundingClientRect();
+        const itemRect = item6.getBoundingClientRect();
+        const centerOffset = itemRect.left + itemRect.width / 2 - trackRect.left - trackRect.width / 2;
+        galleryTrack.scrollLeft += centerOffset;
+        updateGalleryProgress();
+        applyParallax();
+      }
+    }, 100);
+    
+    galleryTrack.addEventListener('scroll', () => {
+      updateGalleryProgress();
+      applyParallax();
+    }, { passive: true });
+  }
 };
 
 if (document.readyState === 'loading') {
