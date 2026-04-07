@@ -23,11 +23,11 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=5">
-  
+  <link rel="stylesheet" href="styles.css?v=14">
+
   <!-- GSAP & ScrollTrigger -->
- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 
 <body>
@@ -41,8 +41,8 @@
       <div class="nav-links" id="navLinks">
         <a href="#about" class="nav-link">About</a>
         <a href="#projects" class="nav-link">Projects</a>
-        <a href="#testimonials" class="nav-link">Testimonials</a>
-        <a href="#resume" class="nav-link">Resume</a>
+        <a href="#highlights" class="nav-link">Highlights</a>
+        <a href="#experience" class="nav-link">Experience</a>
         <a href="#contact" class="nav-cta">Contact Me</a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -310,90 +310,141 @@
     </div>
   </section>
 
-  <!-- Testimonials Section -->
-  <section class="section testimonials" id="testimonials">
-    <div class="section-container testimonials-container">
-      <div class="testimonials-info">
-        <div class="section-header">
-          <p class="section-eyebrow">Testimonials</p>
-          <h2 class="section-title">What People Say</h2>
-          <p class="section-subtitle">Kind words from colleagues, partners, and clients I've had the privilege to work with.</p>
-          <div class="section-divider"></div>
-        </div>
-        
-        <div class="testimonials-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <span class="progress-number" id="progressNumber">01 / 03</span>
-        </div>
+  <!-- Highlights Section -->
+  <section class="highlights" id="highlights">
+    <div class="section-container">
+      <div class="section-header">
+        <p class="section-eyebrow">Highlights</p>
+        <h2 class="section-title">Key Moments & Achievements</h2>
+        <p class="section-subtitle">A glimpse into Carlo's professional journey and contributions to the publishing industry.</p>
+        <div class="section-divider"></div>
       </div>
 
-      <div class="testimonials-stack">
-        <div class="testimonial-card">
-          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-          </svg>
-          <p class="testimonial-text">Carlo's dedication to making quality educational materials accessible is unmatched. His strategic vision and deep understanding of the Philippine education landscape have been instrumental in expanding our reach to underserved communities.</p>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar">MR</div>
-            <div>
-              <span class="testimonial-name">Maria Reyes</span>
-              <span class="testimonial-role">Regional Director, DepEd Region VII</span>
+      <div class="highlights-track">
+        <div class="highlights-content">
+          <a href="https://www.lionheartv.net/2025/12/precious-pages-brings-filipino-stories-to-the-global-stage-representing-the-philippines-as-guest-of-honour-at-frankfurt-book-fair-2025/" target="_blank" rel="noopener" class="highlight-card">
+            <div class="highlight-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
             </div>
-          </div>
+            <h3 class="highlight-title">Frankfurt Book Fair 2025</h3>
+            <p class="highlight-desc">Carlo Bunayos served as a Marketing Director representing Precious Pages and Lampara at the 2025 Frankfurt Book Fair in Germany, where the Philippines was the Guest of Honour at the world's largest book trade event.</p>
+            <span class="highlight-source">lionheartv.net →</span>
+          </a>
+
+          <a href="https://laurenvmacaraeg.com/2018/02/09/lampara-get-together-party-2018/" target="_blank" rel="noopener" class="highlight-card">
+            <div class="highlight-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h3 class="highlight-title">Lampara Team Gathering 2018</h3>
+            <p class="highlight-desc">Carlo Bunayos was featured as a Marketing Director at a Lampara Books team gathering in 2018, an event celebrating collaboration with authors and illustrators in the publishing community.</p>
+            <span class="highlight-source">laurenvmacaraeg.com →</span>
+          </a>
+
+          <a href="https://laurenvmacaraeg.com/2018/02/09/lampara-get-together-party-2018/" target="_blank" rel="noopener" class="highlight-card">
+            <div class="highlight-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/>
+              </svg>
+            </div>
+            <h3 class="highlight-title">Professional Collaboration</h3>
+            <p class="highlight-desc">Carlo Bunayos has coordinated with authors, illustrators, and publishing professionals as part of his role in marketing and events at Lampara Publishing House, helping foster industry relationships and community engagement.</p>
+            <span class="highlight-source">laurenvmacaraeg.com →</span>
+          </a>
+
+          <a href="https://www.lionheartv.net/2025/12/precious-pages-brings-filipino-stories-to-the-global-stage-representing-the-philippines-as-guest-of-honour-at-frankfurt-book-fair-2025/" target="_blank" rel="noopener" class="highlight-card">
+            <div class="highlight-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h3 class="highlight-title">Representation in Education & Publishing</h3>
+            <p class="highlight-desc">Through his work with Precious Pages and Lampara, Carlo Bunayos has participated in initiatives that showcase Filipino literature and educational resources on national and international platforms.</p>
+            <span class="highlight-source">lionheartv.net →</span>
+          </a>
         </div>
 
-        <div class="testimonial-card">
-          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-          </svg>
-          <p class="testimonial-text">Working with Carlo has been a privilege. He brings both professionalism and genuine passion for literacy advocacy. His team always delivers on their commitments, and the quality of materials speaks for itself.</p>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar">JD</div>
-            <div>
-              <span class="testimonial-name">Jose Dela Cruz</span>
-              <span class="testimonial-role">School Division Superintendent, Cebu City</span>
-            </div>
+        <div class="highlights-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" id="highlightsProgressFill"></div>
           </div>
-        </div>
-
-        <div class="testimonial-card">
-          <svg class="testimonial-quote-icon" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-          </svg>
-          <p class="testimonial-text">As a publisher, we help different divisions and regional offices of the Department of Education to help them have reliable materials in numeracy and literacy. Carlo's leadership has been key to this mission.</p>
-          <div class="testimonial-author">
-            <div class="testimonial-avatar">CB</div>
-            <div>
-              <span class="testimonial-name">Carlo Bunayos</span>
-              <span class="testimonial-role">VP of Sales, Lampara Publishing House — PIA Feature, 2025</span>
-            </div>
-          </div>
+          <span class="progress-number" id="highlightsProgressNumber">01 / 04</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Resume Section -->
-  <section class="section resume" id="resume">
-    <div class="section-container resume-content">
+  <!-- Experience & Industry Recognition Section -->
+  <section class="section experience" id="experience">
+    <div class="section-container">
       <div class="section-header reveal">
-        <p class="section-eyebrow">Resume</p>
-        <h2 class="section-title">Download My CV</h2>
-        <p class="section-subtitle">Get a detailed overview of my experience, skills, and qualifications in the
-          publishing industry.</p>
+        <p class="section-eyebrow">Experience & Recognition</p>
+        <h2 class="section-title">Professional Standing</h2>
+        <p class="section-subtitle">A track record of leadership in Filipino publishing, award-winning collaborations, and international representation.</p>
         <div class="section-divider"></div>
       </div>
 
-      <div class="resume-card reveal-scale">
-        <div class="resume-icon">📄</div>
-        <h3>Carlo Bunayos — Curriculum Vitae</h3>
-        <p>Comprehensive resume covering 15+ years of experience in publishing sales, educational partnerships, and
-          market development in the Philippines.</p>
-        <a href="assets/Carlo_Bunayos_CV.pdf" download class="btn btn-download">
-          ⬇ Download Resume (PDF)
-        </a>
+      <div class="experience-grid">
+        <div class="experience-card reveal">
+          <div class="experience-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h3 class="experience-title">Leadership Role in Publishing</h3>
+          <p class="experience-desc">As Marketing Director at <strong>Lampara Publishing House</strong>, Carlo Bunayos has led strategic marketing initiatives that elevated the publisher's presence in both domestic and international markets, driving growth in educational content distribution across the Philippines.</p>
+          <a href="https://www.lamparabooks.com.ph/about-us" target="_blank" rel="noopener" class="experience-link">Lampara Books →</a>
+        </div>
+
+        <div class="experience-card reveal">
+          <div class="experience-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="7"/>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+            </svg>
+          </div>
+          <h3 class="experience-title">Award-Winning Publishing Contributions</h3>
+          <p class="experience-desc">Carlo's work spans titles recognized by prestigious literary awards, including collaborations with <strong>Lampara</strong> and <strong>Precious Pages</strong> for works submitted to the <strong>Carlos Palanca Memorial Awards</strong> and <strong>Lampara Prize</strong>, underscoring his commitment to quality Filipino literature.</p>
+          <span class="experience-tag">Palanca Award</span>
+          <span class="experience-tag">Lampara Prize</span>
+        </div>
+
+        <div class="experience-card reveal">
+          <div class="experience-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h3 class="experience-title">International Industry Representation</h3>
+          <p class="experience-desc">Carlo represented Filipino publishing on the world stage at the <strong>Frankfurt Book Fair 2025</strong>, the world's largest book trade event, where the Philippines served as Guest of Honour — a historic milestone for Philippine literature and culture.</p>
+          <a href="https://www.lionheartv.net/2025/12/precious-pages-brings-filipino-stories-to-the-global-stage-representing-the-philippines-as-guest-of-honour-at-frankfurt-book-fair-2025/" target="_blank" rel="noopener" class="experience-link">LionhearTV →</a>
+        </div>
+
+        <div class="experience-card experience-card-cta reveal">
+          <div class="experience-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <h3 class="experience-title">Connect Professionally</h3>
+          <p class="experience-desc">View Carlo's complete professional profile, including his publishing leadership experience and industry connections, on LinkedIn.</p>
+          <a href="https://www.linkedin.com/in/carlo-bunayos-a47b3171" target="_blank" rel="noopener" class="btn btn-primary experience-btn">
+            View LinkedIn Profile
+            <span class="btn-icon">→</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -439,7 +490,7 @@
               <div class="contact-method-icon">📍</div>
               <div>
                 <div class="contact-method-label">Location</div>
-                <div class="contact-method-value">Philippines</div>
+                <div class="contact-method-value">Metro Manila, National Capital Region, Philippines</div>
               </div>
             </div>
           </div>
@@ -482,8 +533,8 @@
         <nav class="footer-nav">
           <a href="#about">About</a>
           <a href="#projects">Projects</a>
-          <a href="#testimonials">Testimonials</a>
-          <a href="#resume">Resume</a>
+          <a href="#highlights">Highlights</a>
+          <a href="#experience">Experience</a>
           <a href="#contact">Contact</a>
         </nav>
       </div>
@@ -520,7 +571,7 @@
   <!-- Back to Top Button -->
   <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
-  <script src="script.js?v=4"></script>
+  <script src="script.js?v=12"></script>
 </body>
 
 </html>

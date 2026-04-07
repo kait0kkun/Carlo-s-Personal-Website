@@ -12,6 +12,29 @@ const initApp = () => {
   const navbar = document.getElementById('navbar');
   const backToTop = document.getElementById('backToTop');
 
+  // ===== ACTIVE NAV LINK =====
+  const sections = document.querySelectorAll('section[id]');
+  const navLinksAll = document.querySelectorAll('.nav-link');
+
+  function updateActiveNavLink() {
+    const scrollPos = window.scrollY + 100;
+
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      const sectionId = section.getAttribute('id');
+
+      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+        navLinksAll.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${sectionId}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }
+
   const handleScroll = () => {
     const scrolled = window.scrollY > 50;
     navbar.classList.toggle('scrolled', scrolled);
@@ -57,29 +80,6 @@ const initApp = () => {
   if (navLinks) {
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', closeMobileMenu);
-    });
-  }
-
-  // ===== ACTIVE NAV LINK =====
-  const sections = document.querySelectorAll('section[id]');
-  const navLinksAll = document.querySelectorAll('.nav-link');
-
-  function updateActiveNavLink() {
-    const scrollPos = window.scrollY + 100;
-
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.offsetHeight;
-      const sectionId = section.getAttribute('id');
-
-      if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-        navLinksAll.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href') === `#${sectionId}`) {
-            link.classList.add('active');
-          }
-        });
-      }
     });
   }
 
@@ -172,90 +172,91 @@ const initApp = () => {
 
 
 
-  // ===== TESTIMONIALS STACKING ANIMATION (GSAP) =====
-  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+  // ===== HIGHLIGHTS SCROLL STACK ANIMATION (GSAP) =====
+  const initHighlightsScroll = () => {
+    const section = document.querySelector('.highlights');
+    const track = document.querySelector('.highlights-track');
+    const cards = document.querySelectorAll('.highlight-card');
+    const progressFill = document.getElementById('highlightsProgressFill');
+    const progressNumber = document.getElementById('highlightsProgressNumber');
+
+    if (!section || !track || cards.length === 0) return;
+
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      console.warn('GSAP or ScrollTrigger not loaded');
+      return;
+    }
+
     gsap.registerPlugin(ScrollTrigger);
 
-    const section = document.querySelector('.testimonials');
-    const cards = gsap.utils.toArray('.testimonial-card');
-    const progressFill = document.getElementById('progressFill');
-    const progressNumber = document.getElementById('progressNumber');
+    // Set initial positions
+    cards.forEach((card, i) => {
+      if (i === 0) {
+        gsap.set(card, { zIndex: cards.length, y: 0, scale: 1, opacity: 1 });
+      } else {
+        gsap.set(card, { zIndex: cards.length - i, y: 60 * i, scale: 1 - (i * 0.06), opacity: 1 - (i * 0.25) });
+      }
+    });
 
-    if (section && cards.length > 0) {
-      // 1. Initial Setup: Set first card active, others off-screen
-      cards.forEach((card, i) => {
-        gsap.set(card, {
-          position: 'absolute',
-          zIndex: i + 1,
-          opacity: 1,
-          y: i === 0 ? 0 : window.innerHeight,
-          scale: 1,
-          display: 'flex'
-        });
-      });
-
-      // 2. Create the Timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '.testimonials',
-          start: 'top top',
-          end: `+=${cards.length * 100}%`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (progressFill) progressFill.style.transform = `scaleX(${self.progress})`;
-
-            const total = cards.length;
-            const current = Math.min(Math.floor(self.progress * total), total - 1);
-            if (progressNumber) progressNumber.textContent = `0${current + 1} / 0${total}`;
+    // Create scroll animation timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: `+=${window.innerHeight * 3}`,
+        pin: true,
+        scrub: 1,
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          if (progressFill) {
+            gsap.set(progressFill, { scaleX: self.progress });
+          }
+          if (progressNumber) {
+            const current = Math.min(Math.floor(self.progress * cards.length) + 1, cards.length);
+            progressNumber.textContent = `0${current} / 0${cards.length}`;
           }
         }
-      });
-
-      // 3. Construct Animation Sequence
-      cards.forEach((card, index) => {
-        if (index === 0) return;
-
-        // Start the transition for this card at (index - 1) to avoid dead air at the start
-        const label = index - 1;
-
-        // Move/Scale ALL previous cards in the stack
-        for (let i = 0; i < index; i++) {
-          tl.to(cards[i], {
-            scale: 1 - ((index - i) * 0.05),
-            y: -((index - i) * 30),
-            opacity: 1 - ((index - i) * 0.3),
-            duration: 1,
-            ease: 'none'
-          }, label);
-        }
-
-        // Bring the CURRENT card up to center
-        tl.to(card, {
-          y: 0,
-          duration: 1,
-          ease: 'none'
-        }, label);
-      });
-
-      ScrollTrigger.refresh();
-    }
-  } else {
-    // Robust fallback: vertical list
-    const cards = document.querySelectorAll('.testimonial-card');
-    cards.forEach(card => {
-      card.style.position = 'relative';
-      card.style.opacity = '1';
-      card.style.transform = 'none';
-      card.style.marginBottom = '24px';
+      }
     });
-    const stack = document.querySelector('.testimonials-stack');
-    if (stack) stack.style.height = 'auto';
-  }
 
-  // ===== CONTACT FORM =====
+    // Animate cards stacking
+    cards.forEach((card, i) => {
+      if (i === 0) return;
+
+      const label = `card-${i}`;
+
+      // Previous cards stack up and fade
+      for (let j = 0; j < i; j++) {
+        tl.to(cards[j], {
+          y: -30 * (i - j),
+          scale: 1 - (0.04 * (i - j)),
+          opacity: 1 - (0.25 * (i - j)),
+          zIndex: cards.length - j,
+          duration: 1,
+          ease: 'power2.out'
+        }, label);
+      }
+
+      // Current card comes in
+      tl.fromTo(card,
+        { y: 60 * i, scale: 1 - (i * 0.06), opacity: 1 - (i * 0.25) },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          zIndex: cards.length + i,
+          duration: 1,
+          ease: 'power2.out'
+        },
+        label
+      );
+    });
+
+    ScrollTrigger.refresh();
+  };
+
+  initHighlightsScroll();
+
   const contactForm = document.getElementById('contactForm');
   const formStatus = document.getElementById('formStatus');
   const submitBtn = document.getElementById('submitBtn');
