@@ -35,7 +35,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
   <!-- Vercel Analytics -->
-  <script defer src="https://vercel.cloudflare/analytics.js" data-ajax="false"></script>
+  <script>
+    window.va = window.va || function() { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="https://vitals.vercel-insights.com/v1.js"></script>
 </head>
 
 <body>
