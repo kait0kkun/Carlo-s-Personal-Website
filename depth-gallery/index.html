@@ -10,7 +10,7 @@
   <style>
     :root { --bg-dark: #0a0a0a; --gold: #c9a84c; --white: #f4f4f4; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-dark); }
+    html, body { width: 100%; height: 100%; overflow-x: hidden; background: var(--bg-dark); }
     
     .frame {
       position: fixed; top: 0; left: 0; width: 100%;
@@ -23,14 +23,31 @@
     .frame__albums { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .album-btn {
       font-size: 0.7rem; color: rgba(255,255,255,0.7); text-decoration: none;
-      padding: 0.4rem 0.75rem; border: 1px solid rgba(255,255,255,0.3);
+      padding: 0.4rem 0.75rem; border: 1px solid rgba(255,255,255,0.5);
       border-radius: 20px; cursor: pointer; transition: all 0.3s;
+      background: rgba(255,255,255,0.1);
     }
     .album-btn:hover, .album-btn.active { border-color: var(--gold); color: var(--gold); opacity: 1; }
     .frame__back { font-size: 0.8rem; color: var(--white); text-decoration: none; opacity: 0.5; }
     .frame__back:hover { opacity: 1; color: var(--gold); }
     
-    #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+    #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; pointer-events: none; }
+    #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+    #ui-layer .caption { position: absolute; width: 35%; padding: 2rem; opacity: 0; pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 500px; text-align: center; background: rgba(0,0,0,0.25); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+    #ui-layer .caption.left { left: 5%; right: auto; }
+    #ui-layer .caption.active { opacity: 1; }
+    #ui-layer .caption-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #ffffff; text-shadow: 0 2px 20px rgba(0,0,0,0.9); line-height: 1.4; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; position: relative; cursor: pointer; } #ui-layer .tooltip { visibility: hidden; opacity: 0; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); color: #fff; padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; max-width: 400px; width: max-content; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 100; transition: all 0.3s ease; pointer-events: none; } #ui-layer .tooltip::after { content: " \; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: rgba(20,20,20,0.95); } #ui-layer .caption-title:hover .tooltip { visibility: visible; opacity: 1; bottom: calc(100% + 12px); }
+    #ui-layer .caption-chip { width: 12px; height: 12px; border-radius: 50%; margin-bottom: 1rem; box-shadow: 0 2px 15px rgba(0,0,0,0.8); border: 2px solid rgba(255,255,255,0.3); }
+    #ui-layer .caption-counter { position: fixed; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', serif; font-size: 4rem; color: #e0e0e0; text-shadow: 0 2px 20px rgba(0,0,0,0.9); }
+    #ui-layer .caption-counter.left { left: 1.5rem; }
+    #ui-layer .caption-counter.right { right: 1.5rem; }
+    
+    @media (max-width: 768px) {
+      .frame { flex-direction: column; gap: 1rem; padding: 1rem; }
+      #ui-layer .caption { display: none; }
+      #ui-layer .caption-counter { font-size: 2.5rem; top: auto; bottom: 1rem; transform: none; }
+      #ui-layer .caption-counter.left, #ui-layer .caption-counter.right { left: 50%; transform: translateX(-50%); }
+    }
     
     .loading {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -41,19 +58,7 @@
     .loading span { color: var(--gold); font-size: 0.75rem; letter-spacing: 0.3em; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
     
-    .label-overlay { position: fixed; top: 30%; z-index: 50; pointer-events: none; }
-    .label-left { left: clamp(1.5rem, 5vw, 5rem); }
-    .label-right { right: clamp(1.5rem, 5vw, 5rem); text-align: right; max-width: 70vw; }
-    .label-index { font-family: 'Playfair Display', serif; font-size: 4.5rem; color: var(--gold); line-height: 1; }
-    .label-chip { width: 18px; height: 18px; border-radius: 50%; margin-top: 1rem; }
-    .label-card { background: rgba(10,10,10,0.9); backdrop-filter: blur(12px); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); max-height: 40vh; overflow-y: auto; }
-    .label-word { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 400; color: var(--white); line-height: 1.6; }
-    .label-pms { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-top: 0.75rem; }
-    
-    @media (max-width: 768px) {
-      .frame { flex-direction: column; gap: 1rem; padding: 1rem; }
-      .label-overlay { display: none; }
-    }
+    #scroll-proxy { position: absolute; top: 0; left: 0; width: 100%; z-index: 1; }
   </style>
 </head>
 <body>
@@ -65,27 +70,17 @@
     <a class="frame__back" href="../#activities">← Back</a>
   </header>
   
-  <div class="label-overlay label-left">
-    <div class="label-index" id="labelIndex">01</div>
-    <div class="label-chip" id="labelChip"></div>
-  </div>
-  
-  <div class="label-overlay label-right">
-    <div class="label-card">
-      <div class="label-word" id="labelWord">Memory</div>
-      <div class="label-pms" id="labelPms">FilAm 2024</div>
-    </div>
-  </div>
-  
+  <div id="ui-layer"></div>
   <canvas id="canvas"></canvas>
+  <div id="scroll-proxy"></div>
   
   <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.183.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.183.0/examples/jsm/"
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.183.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.183.0/examples/jsm/"
+      }
     }
-  }
   </script>
   
   <script type="module">
@@ -95,17 +90,20 @@
     let albumManifest = {};
     let currentAlbum = 'DAMNHS';
     let camera, scene, renderer, planes = [];
-    let scrollTarget = 0, scrollCurrent = 0;
-    let velocity = 0, pointer = new THREE.Vector2(0, 0);
-    let textures = new Map();
-    const planeGap = 4;
+    let targetProgress = 0, currentProgress = 0, prevProgress = 0, velocity = 0;
+    let maxScroll = 1;
+    let isMobile = window.innerWidth < 768;
+    const planeGap = 12;
+    const albumGap = 60;
+    let allPlanesData = [];
+    let cameraStartZ = 5;
+    let cameraEndZ = 0;
+    let currentZ = 0;
     
-    const labelIndex = document.getElementById('labelIndex');
-    const labelWord = document.getElementById('labelWord');
-    const labelPms = document.getElementById('labelPms');
-    const labelChip = document.getElementById('labelChip');
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     const loading = document.getElementById('loading');
-    
+    const scrollProxy = document.getElementById('scroll-proxy');
+    const uiLayer = document.getElementById('ui-layer');
     const canvas = document.getElementById('canvas');
     
     function getAlbumData(key) {
@@ -115,13 +113,10 @@
       for (const num of a.files) {
         data.push({
           textureSrc: `${a.path}${a.prefix}${num}.webp`,
-          fallbackColor: a.color,
-          accentColor: a.color,
-          backgroundColor: '#1a1a1a',
-          blob1Color: a.color,
-          blob2Color: '#2a2a2a',
-          position: { x: 0, y: 0 },
-          label: { word: a.description || a.word, pms: a.year, color: a.color }
+          bg: '#1a1a1a',
+          b1: a.color,
+          b2: '#2a2a2a',
+          label: { word: a.description || a.word, color: a.color }
         });
       }
       return data;
@@ -163,133 +158,234 @@
       await loadManifest();
       
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-      camera.position.z = 6;
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = cameraStartZ;
       
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setClearColor(0x0a0a0a, 1);
-      scene.background = new THREE.Color(0x0a0a0a);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
       
       initBackground();
-      loadAlbum(currentAlbum);
+      
+      buildPlanesData(currentAlbum);
+      createUIcaptions(currentAlbum);
       createAlbumButtons();
       
       window.addEventListener('resize', onResize);
-      window.addEventListener('wheel', onWheel, { passive: false });
-      window.addEventListener('pointermove', onPointer);
-      window.addEventListener('touchstart', onTouchStart, { passive: true });
-      window.addEventListener('touchmove', onTouchMove, { passive: false });
+      window.addEventListener('scroll', onScroll);
+      window.addEventListener('mousemove', onMouseMove);
       
       animate();
     }
     
+    let bgMesh, bgMat;
+    
     function initBackground() {
-      const bgGeo = new THREE.PlaneGeometry(50, 50);
-      const bgMat = new THREE.ShaderMaterial({
+      const bgGeo = new THREE.PlaneGeometry(100, 100);
+      bgMat = new THREE.ShaderMaterial({
         uniforms: {
+          uBgColor: { value: new THREE.Color('#1a1a1a') },
+          uBlob1Color: { value: new THREE.Color('#c9a84c') },
+          uBlob2Color: { value: new THREE.Color('#25201a') },
           uTime: { value: 0 },
           uVelocity: { value: 0 },
-          uBgColor: { value: new THREE.Color(0x1a1a1a) },
-          uBlob1: { value: new THREE.Color(0xc9a84c) },
-          uBlob2: { value: new THREE.Color(0x25201a) },
-          uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+          uNoiseStrength: { value: 0.04 }
         },
         vertexShader: `
           varying vec2 vUv;
-          void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
-        `,
-        fragmentShader: `
-          precision highp float;
-          uniform float uTime;
-          uniform float uVelocity;
-          uniform vec3 uBgColor;
-          uniform vec3 uBlob1;
-          uniform vec3 uBlob2;
-          varying vec2 vUv;
-          
-          float rand(vec2 st) { return fract(sin(dot(st,vec2(12.9898,78.233)))*43758.5453); }
-          
           void main() {
-            vec2 uv = vUv;
-            vec2 c1 = vec2(0.3+sin(uTime*0.2)*0.1, 0.5+cos(uTime*0.15)*0.08);
-            vec2 c2 = vec2(0.7+sin(uTime*0.18)*0.08, 0.55+cos(uTime*0.22)*0.1);
-            
-            float d1 = smoothstep(0.5, 0.0, length(uv-c1));
-            float d2 = smoothstep(0.45, 0.0, length(uv-c2));
-            
-            vec3 col = uBgColor;
-            col = mix(col, uBlob1, d1*0.45);
-            col = mix(col, uBlob2, d2*0.35);
-            col += (rand(uv+uTime*0.01)-0.5)*0.02;
-            col += uVelocity * 0.12;
-            
-            gl_FragColor = vec4(col, 1.0);
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         `,
-        depthWrite: false
+        fragmentShader: `
+          uniform vec3 uBgColor;
+          uniform vec3 uBlob1Color;
+          uniform vec3 uBlob2Color;
+          uniform float uTime;
+          uniform float uVelocity;
+          uniform float uNoiseStrength;
+          varying vec2 vUv;
+
+          float random(vec2 st) { 
+            return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); 
+          }
+
+          void main() {
+            vec2 center = vUv - 0.5;
+            float dist = length(center);
+            float vignette = 1.0 - smoothstep(0.3, 0.9, dist);
+            
+            float t = uTime * 0.3;
+            vec2 blob1Pos = vec2(0.3 + sin(t) * 0.25, 0.35 + cos(t * 0.7) * 0.2);
+            vec2 blob2Pos = vec2(0.7 + cos(t * 0.8) * 0.2, 0.65 + sin(t * 0.6) * 0.25);
+            vec2 blob3Pos = vec2(0.5 + sin(t * 0.5) * 0.3, 0.5 + cos(t * 0.4) * 0.3);
+            
+            float blob1 = smoothstep(0.5, 0.0, distance(vUv, blob1Pos));
+            float blob2 = smoothstep(0.45, 0.0, distance(vUv, blob2Pos));
+            float blob3 = smoothstep(0.4, 0.0, distance(vUv, blob3Pos));
+            
+            vec3 baseColor = uBgColor * 0.6;
+            vec3 color = baseColor;
+            
+            vec3 c1 = mix(uBlob1Color, uBgColor, 0.3);
+            vec3 c2 = mix(uBlob2Color, uBgColor, 0.4);
+            vec3 c3 = mix(uBlob1Color, uBlob2Color, 0.5);
+            
+            color = mix(color, c1, blob1 * 0.7);
+            color = mix(color, c2, blob2 * 0.6);
+            color = mix(color, c3, blob3 * 0.5);
+            
+            color = mix(color, baseColor, (1.0 - vignette) * 0.5);
+            
+            float vel = abs(uVelocity) * 8.0;
+            color += vec3(vel * 0.1, vel * 0.05, vel * 0.02);
+            
+            float grain = random(vUv + fract(uTime)) * 0.03;
+            color += grain - 0.015;
+            
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `,
+        depthWrite: false,
+        depthTest: false
       });
-      const bg = new THREE.Mesh(bgGeo, bgMat);
-      bg.position.z = -10;
-      scene.add(bg);
+      
+      bgMesh = new THREE.Mesh(bgGeo, bgMat);
+      bgMesh.position.z = -20;
+      camera.add(bgMesh);
+      scene.add(camera);
     }
     
     const textureLoader = new THREE.TextureLoader();
+    const manager = new THREE.LoadingManager();
     
-    async function loadAlbum(key) {
-      // Update label immediately when switching albums
-      const album = albums[key];
-      if (album) {
-        labelWord.textContent = album.description || album.word;
-        labelPms.textContent = album.year || '';
-        labelChip.style.background = album.color || '#c9a84c';
-        labelIndex.textContent = '01';
-      }
+    manager.onLoad = () => {
+      loading.style.opacity = '0';
+      setTimeout(() => loading.classList.add('hidden'), 1000);
+    };
+    
+    function buildPlanesData(key) {
+      const data = getAlbumData(key);
+      const albumIdx = Object.keys(albums).indexOf(key);
+      const captionSide = albumIdx % 2 === 0 ? 'right' : 'left';
+      const mobile = window.innerWidth < 768;
       
-      // Reset scroll to start from beginning
-      scrollTarget = 0;
-      scrollCurrent = 0;
+      allPlanesData = [];
+      currentZ = 0;
       
+      data.forEach((item, i) => {
+        const sideMultiplier = i % 2 === 0 ? -1 : 1;
+        const baseX = mobile ? 0 : (sideMultiplier * 2.5 + (Math.random() - 0.5) * 1.5);
+        const baseY = mobile ? 0 : ((Math.random() - 0.5) * 2.0);
+        
+        allPlanesData.push({
+          ...item,
+          baseX,
+          baseY,
+          z: currentZ,
+          albumIdx,
+          captionSide,
+          planeIndex: i
+        });
+        
+        currentZ -= planeGap;
+      });
+      
+      cameraEndZ = currentZ - 5;
+      scrollProxy.style.height = `${allPlanesData.length * 150}dvh`;
+      maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      
+      createPlanes();
+    }
+    
+    function createPlanes() {
       planes.forEach(p => scene.remove(p));
       planes = [];
-      textures.clear();
+      let loadedCount = 0;
+      const total = allPlanesData.length;
       
-      const data = getAlbumData(key);
-      
-      for (let i = 0; i < data.length; i++) {
-        const item = data[i];
-        try {
-          const tex = await new Promise(r => textureLoader.load(item.textureSrc, r, undefined, (err) => console.warn('Load error:', err)));
+      allPlanesData.forEach((data, idx) => {
+        textureLoader.load(data.textureSrc, tex => {
           tex.colorSpace = THREE.SRGBColorSpace;
-          textures.set(i, tex);
           
-          // Use image dimensions after texture loads
           const img = tex.image;
           const aspect = (img && img.width > 0 && img.height > 0) ? img.width / img.height : 1.33;
+          const isPortrait = aspect < 1.2;
+          const w = isPortrait ? 1.8 : 2.5;
+          const h = isPortrait ? 2.4 : 1.8;
           
-          // Smaller plane width for centered images
-          const planeWidth = 1.6;
-          const planeHeight = planeWidth / aspect;
-          
-          const geo = new THREE.PlaneGeometry(planeWidth, planeHeight);
-          const mat = new THREE.MeshBasicMaterial({ 
-            map: tex, 
+          const geo = new THREE.PlaneGeometry(w, h);
+          const mat = new THREE.MeshBasicMaterial({
+            map: tex,
             side: THREE.DoubleSide,
             transparent: true,
             opacity: 0
           });
           
           const mesh = new THREE.Mesh(geo, mat);
-          mesh.position.set(item.position.x, item.position.y, -i * planeGap);
-          mesh.userData = { ...item, index: i, aspect: aspect };
+          mesh.baseX = data.baseX;
+          mesh.baseY = data.baseY;
+          mesh.baseZ = data.z;
+          mesh.planeIndex = idx;
+          
+          mesh.position.set(mesh.baseX, mesh.baseY, mesh.baseZ);
+          mesh.userData = data;
           
           scene.add(mesh);
           planes.push(mesh);
-        } catch(e) { console.warn('Failed to load:', item.textureSrc, e); }
-      }
+          
+          loadedCount++;
+          if (loadedCount === total) {
+            loading.style.opacity = '0';
+            loading.classList.add('hidden');
+            isInitialized = true;
+            window.scrollTo(0, 0);
+            targetProgress = 0;
+            currentProgress = 0;
+            prevProgress = 0;
+          }
+        }, undefined, () => {
+          loadedCount++;
+          if (loadedCount === total) {
+            loading.style.opacity = '0';
+            loading.classList.add('hidden');
+            isInitialized = true;
+            window.scrollTo(0, 0);
+            targetProgress = 0;
+            currentProgress = 0;
+            prevProgress = 0;
+          }
+        });
+      });
+    }
+    
+    function createUIcaptions(key) {
+      uiLayer.innerHTML = '';
+      const isMobile = window.innerWidth < 768;
       
-      loading.classList.add('hidden');
+      const counter = document.createElement('div');
+      counter.className = 'caption-counter left';
+      counter.id = 'imgCounter';
+      counter.textContent = '01';
+      uiLayer.appendChild(counter);
+      
+      if (isMobile) return;
+      
+      const data = getAlbumData(key);
+      
+      data.forEach((item, i) => {
+        const caption = document.createElement('div');
+        caption.className = `caption right` + (i === 0 ? ' active' : '');
+        caption.id = `caption-${i}`;
+        const titleText = item.label?.word || 'Memory';
+        caption.innerHTML = `
+          <div class="caption-chip" style="background: ${item.label?.color || '#c9a84c'}"></div>
+          <div class="caption-title">${titleText}<div class="tooltip">${titleText}</div></div>
+        `;
+        uiLayer.appendChild(caption);
+      });
     }
     
     function createAlbumButtons() {
@@ -300,103 +396,128 @@
         const btn = document.createElement('button');
         btn.className = 'album-btn' + (key === currentAlbum ? ' active' : '');
         btn.textContent = data.name;
-        btn.onclick = () => { currentAlbum = key; loadAlbum(key); createAlbumButtons(); };
+        btn.onclick = () => { 
+          currentAlbum = key; 
+          window.scrollTo(0, 0);
+          targetProgress = 0;
+          currentProgress = 0;
+          prevProgress = 0;
+          buildPlanesData(key); 
+          createUIcaptions(key);
+          createAlbumButtons(); 
+        };
         container.appendChild(btn);
       });
     }
     
     function onResize() {
+      maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      isMobile = window.innerWidth < 768;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      scrollProxy.style.height = `${allPlanesData.length * 150}dvh`;
+      maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     }
     
-function onWheel(e) {
-      e.preventDefault();
-      // Pull/scroll down = next image (like pulling curtain down)
-      // Scroll up = previous image
-      scrollTarget += e.deltaY * 0.015;
-      const maxScroll = (planes.length - 1) * planeGap;
-      scrollTarget = Math.max(0, Math.min(scrollTarget, maxScroll));
+    function onScroll() {
+      targetProgress = window.scrollY / Math.max(1, maxScroll);
     }
     
-    function onPointer(e) {
-      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    function onMouseMove(e) {
+      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
     }
-    
-    let touchStart = 0;
-    function onTouchStart(e) { touchStart = e.touches[0].clientY; }
-    function onTouchMove(e) {
-      e.preventDefault();
-      // REVERSE: Swipe down = previous, Swipe up = next
-      const delta = touchStart - e.touches[0].clientY;
-      scrollTarget -= delta * 0.03;
-      touchStart = e.touches[0].clientY;
-}
     
     const clock = new THREE.Clock();
+    const tempColor1 = new THREE.Color();
+    const tempColor2 = new THREE.Color();
+    let isInitialized = false;
     
     function animate() {
       requestAnimationFrame(animate);
       
-      const time = clock.getElapsedTime();
-      const delta = scrollTarget - scrollCurrent;
-      // Smooth follow - like pulling
-      scrollCurrent += (scrollTarget - scrollCurrent) * 0.12;
-      velocity = Math.abs(delta) * 0.3;
-      
-      // Camera moves forward with scroll
-      camera.position.z = 6 - scrollCurrent;
-      
-      const bg = scene.children.find(c => c.material?.uniforms?.uTime);
-      if (bg?.material?.uniforms) {
-        bg.material.uniforms.uTime.value = time;
-        bg.material.uniforms.uVelocity.value = velocity;
-        bg.material.uniforms.uBlob1.value.set(albums[currentAlbum].color);
+      if (!isInitialized && planes.length > 0) {
+        isInitialized = true;
       }
       
-      planes.forEach((plane, i) => {
-        // Original: fixed Z positions, camera moves
-        const targetZ = -i * planeGap;
+      if (!isInitialized) {
+        renderer.render(scene, camera);
+        return;
+      }
+      
+      const time = clock.getElapsedTime();
+      
+      currentProgress = THREE.MathUtils.lerp(currentProgress, targetProgress, 0.05);
+      velocity = THREE.MathUtils.lerp(velocity, currentProgress - prevProgress, 0.1);
+      velocity = THREE.MathUtils.clamp(velocity, -0.05, 0.05);
+      prevProgress = currentProgress;
+      if (Math.abs(velocity) < 0.0001) velocity = 0;
+      
+      camera.position.z = THREE.MathUtils.lerp(cameraStartZ, cameraEndZ, currentProgress);
+      mouse.x = THREE.MathUtils.lerp(mouse.x, mouse.targetX, 0.05);
+      mouse.y = THREE.MathUtils.lerp(mouse.y, mouse.targetY, 0.05);
+      
+      planes.forEach((plane) => {
+        let targetX = plane.baseX + (mouse.x * 0.2);
+        let targetY = plane.baseY + (mouse.y * 0.2) + (velocity * 40.0);
         
-        // Fixed scale - smaller
-        plane.scale.setScalar(1.8);
+        plane.position.x = THREE.MathUtils.lerp(plane.position.x, targetX, 0.1);
+        plane.position.y = THREE.MathUtils.lerp(plane.position.y, targetY, 0.1);
+        plane.rotation.x = THREE.MathUtils.lerp(plane.rotation.x, (velocity * 12.0) + (mouse.y * 0.05), 0.1);
+        plane.rotation.y = THREE.MathUtils.lerp(plane.rotation.y, mouse.x * 0.05, 0.1);
         
-        plane.position.z = targetZ;
+        let dist = camera.position.z - plane.position.z;
+        let targetOpacity = 1.0;
         
-        // Parallax from pointer (subtle)
-        const baseX = plane.userData.position.x;
-        plane.position.x = THREE.MathUtils.lerp(plane.position.x, baseX + pointer.x * 0.1, 0.1);
-        plane.position.y = THREE.MathUtils.lerp(plane.position.y, pointer.y * 0.05, 0.1);
-        
-        // Slight rotation from pointer
-        plane.rotation.y = pointer.x * 0.02;
-        plane.rotation.x = -pointer.y * 0.02;
-        
-        // Fade during scroll movement
-        const currZ = plane.position.z;
-        const transDist = Math.abs(targetZ - currZ);
-        const scrolVel = Math.abs(scrollTarget - scrollCurrent);
-        
-        let tgtOpacity = 1;
-        if (scrolVel > 0.5) {
-          tgtOpacity = Math.max(0.5, 1 - (transDist / planeGap) * 0.4);
+        if (dist < 2) targetOpacity = Math.max(0, dist / 2);
+        if (dist > 50) {
+          targetOpacity = 0;
+        } else if (dist > 35) {
+          targetOpacity = 1.0 - ((dist - 35) / 15);
         }
-        plane.material.opacity += (tgtOpacity - plane.material.opacity) * 0.08;
+        plane.material.opacity = targetOpacity;
       });
       
-      // Active image index based on scroll position
-      const activeIndex = Math.floor(scrollCurrent / planeGap);
-      const safeIndex = Math.max(0, Math.min(activeIndex, planes.length - 1));
-      
-      const data = planes[safeIndex]?.userData;
-      if (data) {
-        labelIndex.textContent = String(safeIndex + 1).padStart(2, '0');
-        labelWord.textContent = data.label?.word || 'Memory';
-        labelPms.textContent = data.label?.pms || '';
-        labelChip.style.background = data.label?.color || '#c9a84c';
+      let currentPlaneIdx = 0;
+      for (let i = 0; i < planes.length - 1; i++) {
+        if (camera.position.z <= planes[i].baseZ && camera.position.z > planes[i + 1].baseZ) {
+          currentPlaneIdx = i;
+          break;
+        }
       }
+      
+      if (camera.position.z > planes[0]?.baseZ) currentPlaneIdx = 0;
+      if (camera.position.z <= planes[planes.length - 1]?.baseZ) currentPlaneIdx = planes.length - 1;
+      
+      let p0 = planes[currentPlaneIdx]?.userData;
+      let p1 = planes[Math.min(currentPlaneIdx + 1, planes.length - 1)]?.userData;
+      
+      let blend = 0;
+      if (p0 && p1 && p0.bg !== p1.bg) {
+        const z0 = planes[currentPlaneIdx].baseZ;
+        const z1 = planes[Math.min(currentPlaneIdx + 1, planes.length - 1)].baseZ;
+        blend = (z0 - camera.position.z) / (z0 - z1);
+        blend = THREE.MathUtils.clamp(blend, 0, 1);
+      }
+      
+      if (p0) {
+        bgMat.uniforms.uBgColor.value.copy(tempColor1.set(p0.bg || '#1a1a1a')).lerp(tempColor2.set(p1?.bg || '#1a1a1a'), blend);
+        bgMat.uniforms.uBlob1Color.value.copy(tempColor1.set(p0.b1 || '#c9a84c')).lerp(tempColor2.set(p1?.b1 || '#c9a84c'), blend);
+        bgMat.uniforms.uBlob2Color.value.copy(tempColor1.set(p0.b2 || '#25201a')).lerp(tempColor2.set(p1?.b2 || '#25201a'), blend);
+      }
+      
+      bgMat.uniforms.uTime.value = time;
+      bgMat.uniforms.uVelocity.value = velocity;
+      
+      const counter = document.getElementById('imgCounter');
+      if (counter) {
+        counter.textContent = String(currentPlaneIdx + 1).padStart(2, '0');
+      }
+      
+      document.querySelectorAll('#ui-layer .caption').forEach((cap, i) => {
+        cap.classList.toggle('active', i === currentPlaneIdx);
+      });
       
       renderer.render(scene, camera);
     }
@@ -405,3 +526,14 @@ function onWheel(e) {
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+

@@ -1520,8 +1520,6 @@ button {
   font-size: 0.8rem;
   color: rgba(255,255,255,0.6);
 }
-  color: var(--gray-400);
-}
 
 .gallery-track {
   display: flex;
