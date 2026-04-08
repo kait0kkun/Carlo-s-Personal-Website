@@ -7,6 +7,8 @@
 // Add js-loaded class to enable scroll reveal animations (progressive enhancement)
 document.documentElement.classList.add('js-loaded');
 
+console.log('Script loaded!');
+
 const initApp = () => {
   // ===== NAVBAR SCROLL EFFECT =====
   const navbar = document.getElementById('navbar');
@@ -414,8 +416,61 @@ initHighlightsScroll();
   }
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
+  
+  const tooltipElements = document.querySelectorAll('[data-tooltip]');
+  console.log('Found tooltip elements:', tooltipElements.length);
+  tooltipElements.forEach(el => {
+    el.style.cursor = 'pointer';
+    el.style.pointerEvents = 'auto';
+    
+    const showTooltip = (e) => {
+      const text = e.target.getAttribute('data-tooltip') || el.getAttribute('data-tooltip');
+      if (!text) return;
+      
+      let tooltip = document.getElementById('custom-tooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'custom-tooltip';
+        tooltip.style.cssText = `
+          position: fixed;
+          background: rgba(20,20,20,0.95);
+          color: #fff;
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          max-width: 300px;
+          text-align: left;
+          box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+          border: 1px solid rgba(255,255,255,0.15);
+          z-index: 10000;
+          opacity: 0;
+          pointer-events: none;
+        `;
+        document.body.appendChild(tooltip);
+      }
+      tooltip.textContent = text;
+      tooltip.style.opacity = '0';
+      tooltip.style.display = 'block';
+      const rect = el.getBoundingClientRect();
+      tooltip.style.left = (rect.left + rect.width / 2 - 150) + 'px';
+      tooltip.style.top = (rect.top - 10) + 'px';
+      requestAnimationFrame(() => {
+        tooltip.style.opacity = '1';
+      });
+    };
+    
+    const hideTooltip = () => {
+      const tooltip = document.getElementById('custom-tooltip');
+      if (tooltip) tooltip.style.opacity = '0';
+    };
+    
+    el.addEventListener('mouseenter', showTooltip);
+    el.addEventListener('mouseleave', hideTooltip);
+    el.addEventListener('click', showTooltip);
+  });

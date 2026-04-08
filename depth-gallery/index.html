@@ -33,20 +33,20 @@
     
     #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: block; z-index: 0; pointer-events: none; }
     #ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-    #ui-layer .caption { position: absolute; width: 35%; padding: 2rem; opacity: 0; pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 500px; text-align: center; background: rgba(0,0,0,0.25); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+    #ui-layer .caption-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #ffffff; text-shadow: 0 2px 20px rgba(0,0,0,0.9); line-height: 1.4; margin-bottom: 0.5rem; display: block; width: 100%; word-wrap: break-word; }
+    #ui-layer .caption { position: absolute; width: 35%; min-width: 350px; padding: 2rem; opacity: 0; pointer-events: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 500px; text-align: center; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(10px); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); }
     #ui-layer .caption.left { left: 5%; right: auto; }
     #ui-layer .caption.active { opacity: 1; }
-    #ui-layer .caption-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #ffffff; text-shadow: 0 2px 20px rgba(0,0,0,0.9); line-height: 1.4; margin-bottom: 0.5rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; position: relative; cursor: pointer; } #ui-layer .tooltip { visibility: hidden; opacity: 0; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: rgba(20,20,20,0.95); color: #fff; padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.9rem; line-height: 1.5; max-width: 400px; width: max-content; text-align: left; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 100; transition: all 0.3s ease; pointer-events: none; } #ui-layer .tooltip::after { content: " \; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: rgba(20,20,20,0.95); } #ui-layer .caption-title:hover .tooltip { visibility: visible; opacity: 1; bottom: calc(100% + 12px); }
     #ui-layer .caption-chip { width: 12px; height: 12px; border-radius: 50%; margin-bottom: 1rem; box-shadow: 0 2px 15px rgba(0,0,0,0.8); border: 2px solid rgba(255,255,255,0.3); }
-    #ui-layer .caption-counter { position: fixed; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', serif; font-size: 4rem; color: #e0e0e0; text-shadow: 0 2px 20px rgba(0,0,0,0.9); }
-    #ui-layer .caption-counter.left { left: 1.5rem; }
+
+    #ui-layer .caption-counter { position: fixed; top: 50%; transform: translateY(-50%); font-family: 'Playfair Display', serif; font-size: 4rem; color: #e0e0e0; text-shadow: 0 2px 20px rgba(0,0,0,0.9); pointer-events: auto; }
+#ui-layer .caption-counter.left { left: 1.5rem; }
     #ui-layer .caption-counter.right { right: 1.5rem; }
     
     @media (max-width: 768px) {
       .frame { flex-direction: column; gap: 1rem; padding: 1rem; }
       #ui-layer .caption { display: none; }
-      #ui-layer .caption-counter { font-size: 2.5rem; top: auto; bottom: 1rem; transform: none; }
-      #ui-layer .caption-counter.left, #ui-layer .caption-counter.right { left: 50%; transform: translateX(-50%); }
+      #ui-layer .caption-counter { position: fixed; display: block; font-size: 2.5rem; top: auto; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 100; }
     }
     
     .loading {
@@ -181,16 +181,16 @@
     
     let bgMesh, bgMat;
     
-    function initBackground() {
+function initBackground() {
       const bgGeo = new THREE.PlaneGeometry(100, 100);
       bgMat = new THREE.ShaderMaterial({
         uniforms: {
-          uBgColor: { value: new THREE.Color('#1a1a1a') },
-          uBlob1Color: { value: new THREE.Color('#c9a84c') },
-          uBlob2Color: { value: new THREE.Color('#25201a') },
           uTime: { value: 0 },
           uVelocity: { value: 0 },
-          uNoiseStrength: { value: 0.04 }
+          uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+          uCurrentColor1: { value: new THREE.Color('#c9a84c') },
+          uCurrentColor2: { value: new THREE.Color('#25201a') },
+          uBaseColor: { value: new THREE.Color('#1a1a1a') }
         },
         vertexShader: `
           varying vec2 vUv;
@@ -200,50 +200,99 @@
           }
         `,
         fragmentShader: `
-          uniform vec3 uBgColor;
-          uniform vec3 uBlob1Color;
-          uniform vec3 uBlob2Color;
           uniform float uTime;
           uniform float uVelocity;
-          uniform float uNoiseStrength;
+          uniform vec2 uResolution;
+          uniform vec3 uCurrentColor1;
+          uniform vec3 uCurrentColor2;
+          uniform vec3 uBaseColor;
           varying vec2 vUv;
-
-          float random(vec2 st) { 
-            return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); 
+          
+          float random(vec2 st) {
+            return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
           }
-
+          
+          float noise(vec2 st) {
+            vec2 i = floor(st);
+            vec2 f = fract(st);
+            float a = random(i);
+            float b = random(i + vec2(1.0, 0.0));
+            float c = random(i + vec2(0.0, 1.0));
+            float d = random(i + vec2(1.0, 1.0));
+            vec2 u = f * f * (3.0 - 2.0 * f);
+            return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+          }
+          
+          float fbm(vec2 st) {
+            float value = 0.0;
+            float amplitude = 0.5;
+            for (int i = 0; i < 5; i++) {
+              value += amplitude * noise(st);
+              st *= 2.0;
+              amplitude *= 0.5;
+            }
+            return value;
+          }
+          
           void main() {
-            vec2 center = vUv - 0.5;
-            float dist = length(center);
-            float vignette = 1.0 - smoothstep(0.3, 0.9, dist);
+            vec2 uv = vUv;
+            float t = uTime * 0.15;
             
-            float t = uTime * 0.3;
-            vec2 blob1Pos = vec2(0.3 + sin(t) * 0.25, 0.35 + cos(t * 0.7) * 0.2);
-            vec2 blob2Pos = vec2(0.7 + cos(t * 0.8) * 0.2, 0.65 + sin(t * 0.6) * 0.25);
-            vec2 blob3Pos = vec2(0.5 + sin(t * 0.5) * 0.3, 0.5 + cos(t * 0.4) * 0.3);
+            vec2 center1 = vec2(0.3 + sin(t * 0.7) * 0.25, 0.35 + cos(t * 0.5) * 0.2);
+            vec2 center2 = vec2(0.7 + cos(t * 0.6) * 0.2, 0.65 + sin(t * 0.4) * 0.25);
+            vec2 center3 = vec2(0.5 + sin(t * 0.5) * 0.3, 0.5 + cos(t * 0.6) * 0.3);
+            vec2 center4 = vec2(0.15 + cos(t * 0.8) * 0.15, 0.8 + sin(t * 0.3) * 0.15);
+            vec2 center5 = vec2(0.85 + sin(t * 0.4) * 0.15, 0.2 + cos(t * 0.7) * 0.2);
             
-            float blob1 = smoothstep(0.5, 0.0, distance(vUv, blob1Pos));
-            float blob2 = smoothstep(0.45, 0.0, distance(vUv, blob2Pos));
-            float blob3 = smoothstep(0.4, 0.0, distance(vUv, blob3Pos));
+            float dist1 = length(uv - center1);
+            float dist2 = length(uv - center2);
+            float dist3 = length(uv - center3);
+            float dist4 = length(uv - center4);
+            float dist5 = length(uv - center5);
             
-            vec3 baseColor = uBgColor * 0.6;
+            float r1 = 0.35 + sin(t * 2.0) * 0.1;
+            float r2 = 0.3 + cos(t * 1.5) * 0.08;
+            float r3 = 0.4 + sin(t * 1.8) * 0.12;
+            float r4 = 0.25 + cos(t * 2.2) * 0.07;
+            float r5 = 0.22 + sin(t * 1.6) * 0.06;
+            
+            float circle1 = smoothstep(r1, r1 - 0.15, dist1);
+            float circle2 = smoothstep(r2, r2 - 0.12, dist2);
+            float circle3 = smoothstep(r3, r3 - 0.14, dist3);
+            float circle4 = smoothstep(r4, r4 - 0.1, dist4);
+            float circle5 = smoothstep(r5, r5 - 0.08, dist5);
+            
+            vec3 color1 = uCurrentColor1 * 0.5;
+            vec3 color2 = uCurrentColor2 * 0.4;
+            vec3 color3 = uCurrentColor1 * 0.3 + uCurrentColor2 * 0.2;
+            vec3 color4 = uCurrentColor2 * 0.25 + uCurrentColor1 * 0.15;
+            vec3 color5 = uCurrentColor1 * 0.2 + uCurrentColor2 * 0.2;
+            
+            vec3 baseColor = uBaseColor * 0.08;
             vec3 color = baseColor;
             
-            vec3 c1 = mix(uBlob1Color, uBgColor, 0.3);
-            vec3 c2 = mix(uBlob2Color, uBgColor, 0.4);
-            vec3 c3 = mix(uBlob1Color, uBlob2Color, 0.5);
+            color = mix(color, color1, circle1 * 0.4);
+            color = mix(color, color2, circle2 * 0.35);
+            color = mix(color, color3, circle3 * 0.3);
+            color = mix(color, color4, circle4 * 0.25);
+            color = mix(color, color5, circle5 * 0.2);
             
-            color = mix(color, c1, blob1 * 0.7);
-            color = mix(color, c2, blob2 * 0.6);
-            color = mix(color, c3, blob3 * 0.5);
+            color += (color1 + color2) * 0.01 * (circle1 + circle2 + circle3);
             
-            color = mix(color, baseColor, (1.0 - vignette) * 0.5);
+            float n = fbm(uv * 3.0 + t * 0.3) * 0.08;
+            color += n * 0.03;
             
-            float vel = abs(uVelocity) * 8.0;
+            vec2 center = uv - 0.5;
+            float vignette = 1.0 - smoothstep(0.2, 0.95, length(center));
+            color = mix(color * 0.4, color, vignette);
+            
+            float vel = abs(uVelocity) * 12.0;
             color += vec3(vel * 0.1, vel * 0.05, vel * 0.02);
             
-            float grain = random(vUv + fract(uTime)) * 0.03;
-            color += grain - 0.015;
+            float grain = random(uv + fract(uTime * 0.5)) * 0.01;
+            color += grain - 0.005;
+            
+            color = pow(color, vec3(0.95));
             
             gl_FragColor = vec4(color, 1.0);
           }
@@ -300,7 +349,7 @@
       createPlanes();
     }
     
-    function createPlanes() {
+function createPlanes() {
       planes.forEach(p => scene.remove(p));
       planes = [];
       let loadedCount = 0;
@@ -380,9 +429,14 @@
         caption.className = `caption right` + (i === 0 ? ' active' : '');
         caption.id = `caption-${i}`;
         const titleText = item.label?.word || 'Memory';
+        const charCount = titleText.length;
+        let fontSize = 1.4;
+        if (charCount > 200) fontSize = 0.9;
+        else if (charCount > 150) fontSize = 1.0;
+        else if (charCount > 100) fontSize = 1.2;
         caption.innerHTML = `
           <div class="caption-chip" style="background: ${item.label?.color || '#c9a84c'}"></div>
-          <div class="caption-title">${titleText}<div class="tooltip">${titleText}</div></div>
+          <div class="caption-title" style="font-size: ${fontSize}rem">${titleText}</div>
         `;
         uiLayer.appendChild(caption);
       });
@@ -458,7 +512,7 @@
       mouse.x = THREE.MathUtils.lerp(mouse.x, mouse.targetX, 0.05);
       mouse.y = THREE.MathUtils.lerp(mouse.y, mouse.targetY, 0.05);
       
-      planes.forEach((plane) => {
+planes.forEach((plane) => {
         let targetX = plane.baseX + (mouse.x * 0.2);
         let targetY = plane.baseY + (mouse.y * 0.2) + (velocity * 40.0);
         
@@ -490,7 +544,7 @@
       if (camera.position.z > planes[0]?.baseZ) currentPlaneIdx = 0;
       if (camera.position.z <= planes[planes.length - 1]?.baseZ) currentPlaneIdx = planes.length - 1;
       
-      let p0 = planes[currentPlaneIdx]?.userData;
+let p0 = planes[currentPlaneIdx]?.userData;
       let p1 = planes[Math.min(currentPlaneIdx + 1, planes.length - 1)]?.userData;
       
       let blend = 0;
@@ -502,9 +556,9 @@
       }
       
       if (p0) {
-        bgMat.uniforms.uBgColor.value.copy(tempColor1.set(p0.bg || '#1a1a1a')).lerp(tempColor2.set(p1?.bg || '#1a1a1a'), blend);
-        bgMat.uniforms.uBlob1Color.value.copy(tempColor1.set(p0.b1 || '#c9a84c')).lerp(tempColor2.set(p1?.b1 || '#c9a84c'), blend);
-        bgMat.uniforms.uBlob2Color.value.copy(tempColor1.set(p0.b2 || '#25201a')).lerp(tempColor2.set(p1?.b2 || '#25201a'), blend);
+        bgMat.uniforms.uCurrentColor1.value.copy(tempColor1.set(p0.b1 || '#c9a84c')).lerp(tempColor2.set(p1?.b1 || p0.b1 || '#c9a84c'), blend);
+        bgMat.uniforms.uCurrentColor2.value.copy(tempColor1.set(p0.b2 || '#25201a')).lerp(tempColor2.set(p1?.b2 || p0.b2 || '#25201a'), blend);
+        bgMat.uniforms.uBaseColor.value.copy(tempColor1.set(p0.bg || '#1a1a1a')).lerp(tempColor2.set(p1?.bg || p0.bg || '#1a1a1a'), blend);
       }
       
       bgMat.uniforms.uTime.value = time;
@@ -512,7 +566,9 @@
       
       const counter = document.getElementById('imgCounter');
       if (counter) {
-        counter.textContent = String(currentPlaneIdx + 1).padStart(2, '0');
+        const displayIdx = Math.floor(currentProgress * (planes.length - 1));
+        const clampedIdx = Math.min(Math.max(displayIdx, 0), planes.length - 1);
+        counter.textContent = String(clampedIdx + 1).padStart(2, '0');
       }
       
       document.querySelectorAll('#ui-layer .caption').forEach((cap, i) => {
