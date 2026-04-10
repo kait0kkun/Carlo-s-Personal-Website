@@ -427,7 +427,7 @@ initHighlightsScroll();
   if (farmGalleryGrid) {
     const farmImages = [
       { src: 'assets/images/Agricultural Farm/Agri3.webp', label: 'Main Entrance', desc: 'Farm gateway and main entrance', badge: 'Featured', class: 'featured' },
-      { src: 'assets/images/Agricultural Farm/Agri8.mp4', label: 'Farm Tour', desc: 'Drone aerial footage of entire farm', badge: 'Video', class: 'wide', type: 'video' }
+      { src: 'assets/images/Agricultural Farm/Agri8.mp4', label: 'Farm Tour', desc: 'Drone aerial footage of entire farm', badge: 'Video', class: 'featured', type: 'video' }
     ];
 
     farmImages.forEach(item => {
@@ -439,6 +439,9 @@ initHighlightsScroll();
         card.innerHTML = `
           <div class="farm-card-media">
             <video src="${item.src}" muted loop preload="metadata"></video>
+            <div class="farm-video-play">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
             <div class="farm-card-overlay">
               ${item.badge ? `<span class="farm-card-badge">${item.badge}</span>` : ''}
               <div class="farm-card-info">
@@ -463,6 +466,26 @@ initHighlightsScroll();
         `;
       }
       farmGalleryGrid.appendChild(card);
+
+      // Video hover play/pause
+      if (item.type === 'video') {
+        const video = card.querySelector('video');
+        card.addEventListener('mouseenter', () => video.play());
+        card.addEventListener('mouseleave', () => {
+          video.pause();
+          video.currentTime = 0;
+        });
+      }
+    });
+
+    // GSAP staggered animation for farm gallery
+    gsap.from('.farm-gallery-card', {
+      opacity: 0,
+      y: 30,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power3.out',
+      delay: 0.2
     });
   }
   
