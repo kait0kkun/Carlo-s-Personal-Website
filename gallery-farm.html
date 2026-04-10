@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caloy's Sustainable Agricultural Farm | Media Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0f0d;
+      --bg-secondary: #0f1614;
+      --bg-card: rgba(20, 30, 26, 0.6);
+      --accent-green: #00ff88;
+      --accent-cyan: #00d4aa;
+      --accent-glow: rgba(0, 255, 136, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #606060;
+      --border-color: rgba(0, 255, 136, 0.15);
+      --glass-bg: rgba(20, 30, 26, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .gallery-page {
+      padding: 40px 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 60px;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    @media (max-width: 640px) {
+      .gallery-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        padding-left: 50px;
+      }
+    }
+
+    .gallery-header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 600;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gallery-header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 300;
+    }
+
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: var(--glass-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+    }
+
+    .location-badge svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      grid-auto-rows: 220px;
+    }
+
+    .gallery-item {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(0, 255, 136, 0.1);
+    }
+
+    .gallery-item.wide {
+      grid-column: span 2;
+    }
+
+    .gallery-item.tall {
+      grid-row: span 2;
+    }
+
+    .gallery-item.featured {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+      transition: filter 0.5s ease, transform 0.5s ease;
+    }
+
+    .gallery-item:hover img {
+      filter: grayscale(0%);
+      transform: scale(1.05);
+    }
+
+    .gallery-item .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .gallery-item:hover .overlay {
+      opacity: 1;
+    }
+
+    .gallery-item .label {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      padding: 12px 16px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 2;
+    }
+
+    .gallery-item:hover .label {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .gallery-item .label h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .gallery-item .label p {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .gallery-item .video-indicator {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+
+    .gallery-item .play-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px var(--accent-glow);
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover .play-icon {
+      transform: scale(1.1);
+    }
+
+    .gallery-item .play-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--bg-primary);
+      margin-left: 4px;
+    }
+
+    .gallery-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+      transition: filter 0.5s ease;
+    }
+
+    .gallery-item:hover video {
+      filter: grayscale(0%);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      transform: scale(0.9);
+      transition: transform 0.4s ease;
+    }
+
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-content img,
+    .modal-content video {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+
+    .modal-close:hover {
+      background: var(--accent-green);
+      color: var(--bg-primary);
+    }
+
+    .modal-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1001;
+    }
+
+    .modal-nav:hover {
+      background: var(--accent-green);
+      color: var(--bg-primary);
+    }
+
+    .modal-nav.prev {
+      left: 24px;
+    }
+
+    .modal-nav.next {
+      right: 24px;
+    }
+
+    .modal-counter {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 20px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 1200px) {
+      .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .gallery-page {
+        padding: 24px 16px;
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 180px;
+        gap: 12px;
+      }
+
+      .gallery-item.wide,
+      .gallery-item.featured {
+        grid-column: span 2;
+      }
+
+      .gallery-item.tall {
+        grid-row: span 1;
+      }
+
+      .gallery-item .play-icon {
+        width: 48px;
+        height: 48px;
+      }
+
+      .gallery-item .play-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .modal-nav {
+        width: 44px;
+        height: 44px;
+      }
+
+      .modal-nav.prev {
+        left: 12px;
+      }
+
+      .modal-nav.next {
+        right: 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 200px;
+      }
+
+      .gallery-item.wide,
+      .gallery-item.tall,
+      .gallery-item.featured {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 30px var(--accent-glow);
+      }
+
+      50% {
+        box-shadow: 0 0 50px var(--accent-glow), 0 0 80px rgba(0, 255, 136, 0.2);
+      }
+    }
+
+    .gallery-item.featured:hover {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(20, 30, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .back-btn:hover {
+      background: #00ff88;
+      color: #0a0f0d;
+    }
+
+    .back-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .back-btn {
+        top: 16px;
+        right: 16px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a href="index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  </a>
+  <div class="gallery-page">
+    <header class="gallery-header">
+      <h1>Caloy's Sustainable Agricultural Farm</h1>
+      <p>Modern Agricultural Operations</p>
+      <div class="location-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        San Enrique, Iloilo, Philippines
+      </div>
+    </header>
+
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <button class="modal-nav prev" id="modalPrev">&#8249;</button>
+    <button class="modal-nav next" id="modalNext">&#8250;</button>
+    <div class="modal-content" id="modalContent"></div>
+    <div class="modal-counter" id="modalCounter"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    const farmPath = 'assets/images/Agricultural Farm/';
+    const fileLabels = {
+      'Agri1': { label: 'Guest House Entrance', desc: 'Farm gateway and guest house access' },
+      'Agri2': { label: 'Guest House Lower View', desc: 'View of the guest house from the lower area' },
+      'Agri3': { label: 'Main Entrance', desc: 'Farm gateway and main entrance' },
+      'Agri4': { label: 'Guest House', desc: 'Climate-controlled growing structure' },
+      'Agri5': { label: 'Hog Farm', desc: 'Livestock raising and management' },
+      'Agri6': { label: 'Mini Library Area', desc: 'Reading and learning space' },
+      'Agri7': { label: 'Hog Farm', desc: 'Livestock raising and management' },
+      'Agri8': { label: 'Farm Tour', desc: 'Drone aerial footage of entire farm' },
+      'Agri9': { label: 'Lounge Area', desc: 'Relaxing area with comfortable seating' },
+      'Agri10': { label: 'Painting', desc: 'Artwork and decorative pieces display' },
+      'Agri11': { label: 'Farm Selfie', desc: 'Selfie mirror with farm front background' },
+      'Agri12': { label: 'Hog Farm', desc: 'Livestock raising and management' },
+      'Agri13': { label: 'Awards and Certificates', desc: 'Recognition and achievements display' },
+      'Agri15': { label: 'Personal Office', desc: 'Farm management workspace' }
+    };
+    const knownFiles = ['Agri1.webp', 'Agri2.webp', 'Agri3.webp', 'Agri4.webp', 'Agri5.webp', 'Agri6.webp', 'Agri7.webp', 'Agri8.mp4', 'Agri9.webp', 'Agri10.webp', 'Agri11.webp', 'Agri12.webp', 'Agri13.webp', 'Agri15.webp'];
+
+    const mediaItems = knownFiles.map(filename => {
+      const baseName = filename.replace(/\.(webp|mp4)$/i, '');
+      const info = fileLabels[baseName] || { label: baseName, desc: 'Farm media' };
+      const isVideo = filename.toLowerCase().endsWith('.mp4');
+      return {
+        src: farmPath + filename,
+        label: info.label,
+        desc: info.desc,
+        type: isVideo ? 'video' : 'image',
+        poster: isVideo ? farmPath + 'Agri9.webp' : null
+      };
+    });
+
+    const gridSizes = [
+      { class: 'featured', index: 0 },
+      { class: 'wide', index: 1 },
+      { class: '', index: 2 },
+      { class: '', index: 3 },
+      { class: 'wide', index: 4 },
+      { class: 'tall', index: 5 },
+      { class: '', index: 6 },
+      { class: 'featured', index: 7 },
+      { class: '', index: 8 },
+      { class: '', index: 9 },
+      { class: 'wide', index: 10 },
+      { class: '', index: 11 },
+      { class: 'tall', index: 12 },
+      { class: '', index: 13 }
+    ];
+
+    // Dynamic grid sizing based on file index
+    const getGridClass = (index, type) => {
+      const pattern = [
+        'featured', 'wide', '', '',
+        'wide', 'tall', '',
+        'featured', '', '',
+        'wide', '', 'tall', ''
+      ];
+      return pattern[index % pattern.length] || '';
+    };
+
+    const grid = document.getElementById('galleryGrid');
+    let currentIndex = 0;
+
+    mediaItems.forEach((item, index) => {
+      const sizeClass = getGridClass(index, item.type);
+      const el = document.createElement('div');
+      el.className = `gallery-item ${sizeClass}`;
+      el.dataset.index = index;
+
+      if (item.type === 'video') {
+        el.innerHTML = `
+          <video src="${item.src}" preload="metadata" muted loop></video>
+          <div class="video-indicator">
+            <div class="play-icon">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
+          </div>
+          <div class="overlay"></div>
+          <div class="label">
+            <h3>${item.label}</h3>
+            <p>${item.desc}</p>
+          </div>
+        `;
+      } else {
+        el.innerHTML = `
+          <img src="${item.src}" alt="${item.label}" loading="lazy">
+          <div class="overlay"></div>
+          <div class="label">
+            <h3>${item.label}</h3>
+            <p>${item.desc}</p>
+          </div>
+        `;
+      }
+
+      el.addEventListener('click', () => openModal(index));
+      grid.appendChild(el);
+    });
+
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const modalCounter = document.getElementById('modalCounter');
+
+    function openModal(index) {
+      currentIndex = index;
+      updateModalContent();
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      const video = modalContent.querySelector('video');
+      if (video) video.pause();
+    }
+
+    function updateModalContent() {
+      const item = mediaItems[currentIndex];
+      if (item.type === 'video') {
+        modalContent.innerHTML = `
+          <video src="${item.src}" controls autoplay style="max-width: 90vw; max-height: 85vh;"></video>
+        `;
+      } else {
+        modalContent.innerHTML = `<img src="${item.src}" alt="${item.label}">`;
+      }
+      modalCounter.textContent = `${currentIndex + 1} / ${mediaItems.length}`;
+    }
+
+    function navigate(direction) {
+      currentIndex = (currentIndex + direction + mediaItems.length) % mediaItems.length;
+      updateModalContent();
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalPrev').addEventListener('click', () => navigate(-1));
+    document.getElementById('modalNext').addEventListener('click', () => navigate(1));
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('active')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft') navigate(-1);
+      if (e.key === 'ArrowRight') navigate(1);
+    });
+
+    gsap.to('.gallery-header', {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power3.out'
+    });
+
+    gsap.to('.gallery-item', {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power3.out',
+      delay: 0.3
+    });
+
+    const gridItems = document.querySelectorAll('.gallery-item');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    gridItems.forEach(item => observer.observe(item));
+  </script>
+</body>
+
+</html>

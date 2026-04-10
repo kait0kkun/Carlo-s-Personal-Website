@@ -421,6 +421,50 @@ initHighlightsScroll();
   } else {
     initApp();
   }
+
+  // ===== FARM GALLERY DYNAMIC LOADING =====
+  const farmGalleryGrid = document.getElementById('farmGalleryGrid');
+  if (farmGalleryGrid) {
+    const farmImages = [
+      { src: 'assets/images/Agricultural Farm/Agri3.webp', label: 'Main Entrance', desc: 'Farm gateway and main entrance', badge: 'Featured', class: 'featured' },
+      { src: 'assets/images/Agricultural Farm/Agri8.mp4', label: 'Farm Tour', desc: 'Drone aerial footage of entire farm', badge: 'Video', class: 'wide', type: 'video' }
+    ];
+
+    farmImages.forEach(item => {
+      const card = document.createElement('a');
+      card.href = 'gallery-farm.html';
+      card.className = `farm-gallery-card ${item.class}`;
+      
+      if (item.type === 'video') {
+        card.innerHTML = `
+          <div class="farm-card-media">
+            <video src="${item.src}" muted loop preload="metadata"></video>
+            <div class="farm-card-overlay">
+              ${item.badge ? `<span class="farm-card-badge">${item.badge}</span>` : ''}
+              <div class="farm-card-info">
+                <h3>${item.label}</h3>
+                <p>${item.desc}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="farm-card-media">
+            <img src="${item.src}" alt="${item.label}" loading="lazy">
+            <div class="farm-card-overlay">
+              ${item.badge ? `<span class="farm-card-badge">${item.badge}</span>` : ''}
+              <div class="farm-card-info">
+                <h3>${item.label}</h3>
+                <p>${item.desc}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      farmGalleryGrid.appendChild(card);
+    });
+  }
   
   const tooltipElements = document.querySelectorAll('[data-tooltip]');
   console.log('Found tooltip elements:', tooltipElements.length);
