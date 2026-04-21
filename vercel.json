@@ -1,9 +1,3 @@
 {
-  "redirects": [
-    {
-      "source": "/((?!maintenance).*)",
-      "destination": "/maintenance.html",
-      "permanent": false
-    }
-  ]
+  "cleanUrls": true
 }
